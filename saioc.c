@@ -80,7 +80,7 @@ int main (int argc, char* argv[])
 	if (strcmp(argv[1], "-help") == 0 || strcmp(argv[1], "help") == 0)
 	{
 		printf ("SAIOC (version: 1.0.0)\n");
-		printf ("A simple all-in-one compiler frontend for Termux environment in Android.\n");
+		printf ("A simple all-in-one compiler interface for Termux environment in Android targetting educational purposes and quick prototyping.\n");
 		printf ("Copyright (c) Arijit Kumar Das <arijitkdgit.official@gmail.com> (MIT License).\n\n");
 		printf ("* Usage: saioc <option> <srcfile>\n");
 		printf ("* Supports compilation of only one source file per call.\n");
