@@ -1,6 +1,6 @@
 /*
 File: saioc.c
-Version: 1.0.0
+Version: 1.1.0
 Copyright (c) Arijit Kumar Das <arijitkdgit.official@gmail.com>
 This program is licensed under the MIT License.
 */
@@ -79,7 +79,7 @@ int main (int argc, char* argv[])
 	}
 	if (strcmp(argv[1], "-help") == 0 || strcmp(argv[1], "help") == 0)
 	{
-		printf ("SAIOC (version: 1.0.0)\n");
+		printf ("SAIOC (version: 1.1.0)\n");
 		printf ("A simple all-in-one compiler interface for Termux environment in Android targetting educational purposes and quick prototyping.\n");
 		printf ("Copyright (c) Arijit Kumar Das <arijitkdgit.official@gmail.com> (MIT License).\n\n");
 		printf ("* Usage: saioc <option> <srcfile>\n");
@@ -89,6 +89,7 @@ int main (int argc, char* argv[])
 		printf ("\t-c\t:  Compile and run C code\n");
 		printf ("\t-cpp\t:  Compile and run C++ code\n");
 		printf ("\t-rust\t:  Compile and run Rust code\n");
+		printf ("\t-kotlin\t:  Compile and run Kotlin code\n");
 		printf ("\t-help\t:  Show this help menu and exit\n");
 	}
 	else if (strcmp(argv[1], "-java") == 0 || strcmp(argv[1], "java") == 0)
@@ -180,7 +181,6 @@ int main (int argc, char* argv[])
 		clearBuffer(command);
 		snprintf(command, COMBUFFER, "rm ~/%s 1> /dev/null 2> /dev/null", binname);
 		system(command);
-		
 	}
 	else if (strcmp(argv[1], "-cpp") == 0 || strcmp(argv[1], "cpp") == 0)
 	{
@@ -261,6 +261,56 @@ int main (int argc, char* argv[])
 		clearBuffer(command);
 		snprintf(command, COMBUFFER, "rm ~/%s 1> /dev/null 2> /dev/null", binname);
 		system(command);
+	}
+	else if (strcmp(argv[1], "-kotlin") == 0 || strcmp(argv[1], "kotlin") == 0)
+	{
+		if (argc < 3)
+		{
+			printf ("saioc: No source file specified. Abort.\n");
+			return 1;
+		}
+		printf ("Compiling %s...\n", argv[2]);
+		char command[COMBUFFER];
+		int retcode;
+		clearBuffer(command);
+		snprintf(command, COMBUFFER, "kotlinc %s 2>/dev/null", argv[2]);
+		retcode = system(command);
+		if (retcode == 0)
+		{
+			printf ("Compiled successfully!\n");
+		}
+		else
+		{
+			printf ("\nCompilation failed. See above for errors.\n");
+			return 1;
+		}
+		clearBuffer(command);
+		char* classfile = strcat(getActualFilename(argv[2]), "Kt");
+		char* srcdir = getFileDir(argv[2]);
+		printf ("\nGenerating dex file...\n");
+		snprintf(command, COMBUFFER, "cd %s && dx --dex --output=%s.dex %s.class", srcdir, classfile, classfile);
+		retcode = system(command);
+		if (retcode == 0)
+		{
+			printf ("Dex file generated successfully!\n");
+		}
+		else
+		{
+			printf ("\nFailed to generate dex file. See above for errors.\n");
+			return 1;
+		}
+		clearBuffer(command);
+		snprintf(command, COMBUFFER, "cd %s && dalvikvm -cp %s.dex %s", srcdir, classfile, classfile);
+		printf ("\nRunning program...\n\n");
+		retcode = system(command);
+		if (retcode == 0)
+		{
+			printf ("\n[Program exited with return code 0]\n");
+		}
+		else
+		{
+			printf ("\n[Program exited with return code %d]\n", retcode);
+		}
 	}
 	else
 	{
